@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Menu, X, Brain, BarChart3 } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, X, Brain } from "lucide-react";
+import { SignedOut, SignedIn, SignInButton, UserButton, useAuth } from "@clerk/nextjs";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isSignedIn } = useAuth();
 
   const navigation = [
-    { name: 'Features', href: '#features' },
-    { name: 'Solutions', href: '#solutions' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Resources', href: '#resources' },
+    { name: "Features", href: "#features" },
+    { name: "Solutions", href: "#solutions" },
+    { name: "Pricing", href: "#pricing" },
+    { name: "Resources", href: "#resources" },
   ];
 
   return (
@@ -21,8 +23,8 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-primary cursor-none" />
-              <span className="text-xl font-bold text-primary cursor-none">FinanceAI</span>
+              <Brain className="h-8 w-8 text-white" />
+              <span className="text-xl font-bold text-white">FinanceAI</span>
             </Link>
           </div>
 
@@ -32,64 +34,73 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-white hover:text-primary transition-colors duration-200"
+                className="text-white hover:text-gray-300 transition-colors duration-200"
               >
                 {item.name}
               </Link>
             ))}
-            <Link
-              href="/login"
-              className="px-4 py-2 text-primary hover:text-primary/90 transition-colors duration-200"
-            >
-              Sign In
-            </Link>
+
+            {/* SignedIn / SignedOut Logic */}
+            <SignedOut>
+              <div className="px-4 py-2">
+                <SignInButton mode="modal" />
+              </div>
+            </SignedOut>
+            <SignedIn>
+              <div className="px-4 py-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
+
             <Link
               href="/register"
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200"
+              className="px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
             >
               Get Started
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-primary"
+              className="text-white hover:text-gray-300"
             >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
+          <div className="md:hidden bg-blue-700">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="block px-3 py-2 text-gray-600 hover:text-primary transition-colors duration-200"
+                  className="block px-3 py-2 text-white hover:text-gray-300 transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <Link
-                href="/login"
-                className="block px-3 py-2 text-primary hover:text-primary/90 transition-colors duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign In
-              </Link>
+
+              {/* Mobile Auth */}
+              <SignedOut>
+                <div className="px-3 py-2">
+                  <SignInButton mode="modal" />
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <div className="px-3 py-2">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </SignedIn>
+
               <Link
                 href="/register"
-                className="block px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200"
+                className="block px-3 py-2 bg-white text-blue-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Get Started
