@@ -7,7 +7,7 @@ import { SignedOut, SignedIn, SignInButton, UserButton, useAuth } from "@clerk/n
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isSignedIn } = useAuth();
+  // const { isSignedIn } = useAuth();
 
   const navigation = [
     { name: "Features", href: "#features" },
@@ -42,10 +42,13 @@ const Header = () => {
 
             {/* SignedIn / SignedOut Logic */}
             <SignedOut>
-              <div className="px-4 py-2">
-                <SignInButton mode="modal" />
-              </div>
-            </SignedOut>
+            <div className="px-4 py-2">
+              <Link href="/sign-in" className="px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+                Sign In
+              </Link>
+            </div>
+          </SignedOut>
+
             <SignedIn>
               <div className="px-4 py-2">
                 <UserButton afterSignOutUrl="/" />
