@@ -4,6 +4,8 @@ import React from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { SignIn } from "@clerk/nextjs";
+import Link from "next/link";
+import { Brain } from "lucide-react";
 
 // Clerk SignUp Component (Fixes SSR issue)
 //const SignIn = dynamic(() => import("@clerk/nextjs").then(mod => mod.SignIn), { ssr: false });
@@ -37,8 +39,16 @@ export default function Page() {
     >
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-      <h1 className="flex text-4xl  items-center justify-center font-extrabold leading-none tracking-tight text-gray-100 md:text-3xl lg:text-4xl mt-12 dark:text-white">Sign  In  required !</h1>
-
+      <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center ml-6">
+            <Link href="/" className="flex items-center space-x-2">
+              <Brain className="h-8 w-8 text-white" />
+              <span className="flex text-xl font-bold text-white">FinanceAI</span>
+            </Link>
+            <h1 className=" text-4xl ml-[27vw] font-extrabold leading-none tracking-tight text-gray-100 md:text-3xl lg:text-4xl mt-12 dark:text-white">Sign In required !</h1> 
+          </div>
+          </div>
         <FloatingElement className="w-[400px] h-[400px] left-[-80px] top-[-80px] bg-blue-500/30" />
         <FloatingElement className="w-[500px] h-[500px] right-[-100px] bottom-[-100px] bg-purple-500/30" />
         <FloatingElement className="w-[350px] h-[350px] left-[50%] top-[40%] bg-pink-500/30" />
@@ -62,7 +72,7 @@ export default function Page() {
         animate={{ scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <SignIn routing="path" signUpUrl="/sign-up" />
+        <SignIn routing="path" signUpUrl="/sign-up" forceRedirectUrl="/dashboard"/>
       </motion.div>
     </motion.div>
   );

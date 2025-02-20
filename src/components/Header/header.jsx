@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, Brain } from "lucide-react";
-import { SignedOut, SignedIn, SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+import { Menu, X, Brain, LayoutDashboard } from "lucide-react";
+import { SignedOut, SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
+import { Button } from "../ui/button";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const { isSignedIn } = useAuth();
 
   const navigation = [
     { name: "Features", href: "#features" },
@@ -29,7 +29,7 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -40,20 +40,22 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* SignedIn / SignedOut Logic */}
-            <SignedOut>
-            <div className="px-4 py-2">
-              <Link href="/sign-in" className="px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
-                Sign In
-              </Link>
-            </div>
-          </SignedOut>
-
             <SignedIn>
-              <div className="px-4 py-2">
-                <UserButton afterSignOutUrl="/" />
-              </div>
+              <Link href="/dashboard">
+                <Button variant="outline" className="flex bg-yellow-400 items-center hover:bg-green-400">
+                  <LayoutDashboard size={18} />
+                  <span className="mr-2">Dashboard</span>
+                  <UserButton afterSignOutUrl="/" />
+                </Button>
+              </Link>
+
             </SignedIn>
+
+            <SignedOut>
+              <Link href="/sign-in">
+                <Button variant="outline">Sign In</Button>
+              </Link>
+            </SignedOut>
 
             <Link
               href="/register"
@@ -77,7 +79,7 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden bg-blue-700">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="px-4 pt-2 pb-4 space-y-2">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -89,17 +91,21 @@ const Header = () => {
                 </Link>
               ))}
 
-              {/* Mobile Auth */}
-              <SignedOut>
-                <div className="px-3 py-2">
-                  <SignInButton mode="modal" />
-                </div>
-              </SignedOut>
               <SignedIn>
-                <div className="px-3 py-2">
-                  <UserButton afterSignOutUrl="/" />
-                </div>
+                <Link
+                  href="/dashboard"
+                  className=" px-3 py-2 rounded-lg bg-yellow-400 text-white flex items-center space-x-2 hover:text-green-300"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <LayoutDashboard size={18} />
+                  <span>Dashboard</span>
+                </Link>
+                <UserButton afterSignOutUrl="/" />{/*Iski vjh se aa rha hai shyd vo Google Sign ka logo */}
               </SignedIn>
+
+              <SignedOut>
+                <SignInButton mode="modal" />
+              </SignedOut>
 
               <Link
                 href="/register"
