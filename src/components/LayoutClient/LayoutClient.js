@@ -11,7 +11,7 @@ export default function LayoutClient({ children }) {
   return (
     <>
       {!hideLayout && <Header />}
-      <main className="h-screen">{children}</main>
+      <main className="flex-1">{children}</main>
       {!hideLayout && <Footer />}
     </>
   );
