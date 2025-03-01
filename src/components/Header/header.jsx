@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X, Brain, LayoutDashboard, PenBox } from "lucide-react";
 import { SignedOut, SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 
-const Header = () => {
+
+const Header =() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userData,setUserData]=useState(null)
+  useEffect(() => {
+    fetch("/api/checkUser")
+      .then((res) => res.json())
+      .then((data) => setUserData(data));
+  }, []);
+
+
+
+
+
 
 
   return (
