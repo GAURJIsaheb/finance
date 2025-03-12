@@ -20,7 +20,7 @@ export async function createAccount(data){//data se,,-- accountsTable_Var -- Tab
         if(!userId){
             throw new Error("No User_Id found in dashboardAction.js File");
         }
-        const user=await db_Var.usersTable_Var.findUnqiue({
+        const user=await db_Var.usersTable_Var.findUnique({
             where:{clerkUserId:userId},//clerkUserId-->aaya hai--->usersTable_Var se-->prisma.schema se
         });
         if(!user){
@@ -42,7 +42,7 @@ export async function createAccount(data){//data se,,-- accountsTable_Var -- Tab
             where:{userId:user.id},
         })
         //if options mai Khudse pass kr rha user ki ye account default hoga
-        const shouldbe_Default=existingAccounts.length()===0?true:data.isDefault;
+        const shouldbe_Default=existingAccounts.length === 0 ? true:data.isDefault;
 
         //if Default krna hai Current Account,,to Purane Accounts hain agr jo,,unhe NON DEFAULT,,,KRO
         if(shouldbe_Default){

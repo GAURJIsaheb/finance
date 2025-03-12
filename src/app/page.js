@@ -13,13 +13,32 @@ const wildFade = {
   animate: { opacity: 1, scale: 1, rotate: 0 },
   transition: { duration: 0.8, ease: "backOut" }
 };
+// Staggered entrance for that irresistible allure
+const velvetContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.3,
+    },
+  },
+};
+
+
+// Seductive animation variants
+const sultryFade = {
+  initial: { opacity: 0, y: 20, rotateX: -10 },
+  animate: { opacity: 1, y: 0, rotateX: 0 },
+  transition: { duration: 0.9, ease: [0.6, -0.05, 0.01, 0.99] }
+};
+
+
 const cardColors = [
-  "bg-red-500 border-red-700 shadow-red-500/50",
-  "bg-blue-500 border-blue-700 shadow-blue-500/50",
-  "bg-green-500 border-green-700 shadow-green-500/50",
-  "bg-yellow-500 border-yellow-700 shadow-yellow-500/50",
-  "bg-purple-500 border-purple-700 shadow-purple-500/50",
-  "bg-pink-500 border-pink-700 shadow-pink-500/50",
+  "bg-gradient-to-br from-rose-600 to-rose-800 border-rose-900 shadow-rose-600/40",
+  "bg-gradient-to-br from-indigo-600 to-indigo-800 border-indigo-900 shadow-indigo-600/40",
+  "bg-gradient-to-br from-emerald-600 to-emerald-800 border-emerald-900 shadow-emerald-600/40",
+  "bg-gradient-to-br from-amber-600 to-amber-800 border-amber-900 shadow-amber-600/40",
+  "bg-gradient-to-br from-violet-600 to-violet-800 border-violet-900 shadow-violet-600/40",
+  "bg-gradient-to-br from-fuchsia-600 to-fuchsia-800 border-fuchsia-900 shadow-fuchsia-600/40",
 ];
 
 
@@ -155,44 +174,45 @@ export default function Home() {
       </section>
 
       {/* Testimonials: Acid Trip */}
-      <section className="py-24 bg-gradient-to-tr from-acid-green to-purple-800">
+{/* Testimonials: Sultry Spotlight */}
+<section className="py-32 bg-gradient-to-tr from-teal-800 to-rose-900">
         <motion.div
-          className="container mx-auto px-8"
+          className="container mx-auto px-6"
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
-          variants={chaosContainer}
+          variants={velvetContainer}
         >
           <motion.h2
-            className="text-5xl md:text-6xl font-extrabold text-center mb-12 text-white text-shadow-[0_0_15px_rgba(255,0,255,0.8)]"
-            variants={wildFade}
+            className="text-5xl md:text-6xl font-extrabold text-center mb-12 text-gray-100 drop-shadow-[0_0_20px_rgba(0,255,255,0.5)]"
+            variants={sultryFade}
           >
-            RAVING FANS
+            VOICES OF VICTORY
           </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {testimonialsData.map((item, index) => (
               <motion.div
                 key={index}
-                variants={wildFade}
-                whileHover={{ scale: 1.1, rotate: -3 }}
+                variants={sultryFade}
+                whileHover={{ scale: 1.05, rotate: -1 }}
               >
-                <Card className="p-8 bg-black/80 border-3 border-electric-pink rounded-2xl shadow-[0_0_25px_rgba(255,0,128,0.6)]">
-                  <CardContent className="pt-4 space-y-6">
+                <Card className="p-8 bg-gray-900/90 border-2 border-teal-500 rounded-xl shadow-[0_0_25px_rgba(0,255,255,0.3)]">
+                  <CardContent className="pt-6 space-y-6">
                     <div className="flex items-center gap-6">
-                      <div className="relative w-20 h-20">
+                      <div className="relative w-16 h-16">
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
-                          className="rounded-full object-cover border-4 border-neon-yellow "
+                          className="rounded-full object-cover border-2 border-rose-500"
                         />
                       </div>
                       <div>
-                        <div className="font-bold text-2xl text-white">{item.name}</div>
-                        <div className="text-yellow-200 font-mono">{item.role}</div>
+                        <div className="font-bold text-xl text-gray-100">{item.name}</div>
+                        <div className="text-gray-400 font-mono">{item.role}</div>
                       </div>
                     </div>
-                    <p className="text-green-500 font-mono leading-relaxed italic">“{item.quote}”</p>
+                    <p className="text-teal-400 font-mono leading-relaxed italic">“{item.quote}”</p>
                   </CardContent>
                 </Card>
               </motion.div>

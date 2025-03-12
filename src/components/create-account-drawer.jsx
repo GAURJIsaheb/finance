@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Drawer,
     DrawerClose,
@@ -23,6 +23,10 @@ import {
 } from "@/components/ui/select"
 import { Switch } from './ui/switch';
 import { Button } from './ui/button';
+import useFetch from '../../hooks/use-fetch';
+import { createAccount } from '@/Serveractions/dashbaordAction';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
   
 
@@ -39,19 +43,48 @@ function CreateAccountDrawer({children}) {
       formState:{errors},
       setValue,
       watch,
-      reset}=useForm({
+      reset}= useForm({
       resolver:zodResolver(accountFormschema),
       defaultValues:{
         name:"",
-        type:"Current",
+        type:"CURRENT",
         balance:"",
         isDefault:false
       }
     })
 
+
+
+
+    //Calling use-fetch.jsx se->usefetch() hook
+    //data fetch and rename kr rhe,,,e.g: data:newAccount
+    const{data:newAccount,error,fn:createAcountFunction,loading:createAccountLoading}=useFetch(createAccount);
+    //ACCOUNT Create hone k baad Toast dikhega jo
+    useEffect(()=>{
+       if(newAccount && !createAccountLoading){
+        toast.success("New Account Created Successfully !!");
+        reset();//reset our forms
+        setOpen(false)//drawer closes
+       }
+
+
+    },[createAccountLoading,newAccount])
+
+
+    //for handling any error
+    useEffect(()=>{
+      if(error){
+        toast.error(error.message ||"Failed to create account");
+      }
+
+    },[error])
+
+
+
     //To subnit the form
     const onSubmit=async(data)=>{
-      console.log("Data subnitted in Create Account Form "+data)
+      await createAcountFunction(data);
+      //console.log("Data subnitted in Create Account Form "+data)
     }
   return (
         <Drawer open={open} onOpenChange={setOpen}>
@@ -89,8 +122,8 @@ function CreateAccountDrawer({children}) {
                             <SelectValue placeholder="Seelct your Account type" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Current">Current</SelectItem>
-                            <SelectItem value="Savings">Savings</SelectItem>
+                            <SelectItem value="CURRENT">Current</SelectItem>
+                            <SelectItem value="SAVINGS">Savings</SelectItem>
 
                           </SelectContent>
                         </Select>
@@ -136,7 +169,10 @@ function CreateAccountDrawer({children}) {
                           <Button type="button" className="bg-black text-white flex-1">Cancel</Button>
                         </DrawerClose>
 
-                        <Button type="submit" className="flex-1 bg-green-500 text-white">Create </Button>
+                        <Button type="submit" className="flex-1 bg-green-500 text-white" disabled={createAccountLoading}>
+                          {createAccountLoading?(<> <Loader2 className="mr-2 h-4 w-4 animate-spin"/>Processing...</>
+                          ): ("Create"
+                          )} </Button>
                        </div>
 
 

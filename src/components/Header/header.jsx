@@ -10,11 +10,23 @@ import { Button } from "../ui/button";
 const Header =() => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData,setUserData]=useState(null)
+  
   useEffect(() => {
-    fetch("/api/checkUser")
-      .then((res) => res.json())
-      .then((data) => setUserData(data));
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/checkuser");
+        if (!res.ok) throw new Error("Failed to fetch user");
+
+        const data = await res.json();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
   }, []);
+  
 
 
 
