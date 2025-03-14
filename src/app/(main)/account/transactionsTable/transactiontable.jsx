@@ -1,6 +1,15 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox } from "@/components/ui/checkbox"
+import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,20 +34,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw } from 'lucide-react';
+import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw, Search } from 'lucide-react';
 import { categoryColors } from '@/data/category';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 
 function Transactiontable({ transactions }) {
   const Router = useRouter();
   const [selectedTransactions, setSelectedTransactions] = useState([]);
-  const[sortConfig,setSortConfig]=useState({
-    field:"date",
-    direction:"desc"
+  const [sortConfig, setSortConfig] = useState({
+    field: "date",
+    direction: "desc",
   });
-  //console.log("--->",selectedTransactions);
+
+  const [searchterm, setSearchterm] = useState("");
+  const [typeFilter, settypeFilter] = useState("");
+  const [recurringFilter, setrecurringFilter] = useState("");
 
   const handleSort = (field) => {
     setSortConfig((current) => ({
@@ -46,8 +59,7 @@ function Transactiontable({ transactions }) {
       direction: current.field === field && current.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
-  
-  // Apply sorting logic dynamically
+
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (sortConfig.field === 'date') {
       return sortConfig.direction === 'asc'
@@ -89,29 +101,57 @@ function Transactiontable({ transactions }) {
     YEARLY: "Yearly",
   };
 
-  //Delete Function
-  const deleteFn = (id) => {
-    // Perform delete action (e.g., calling an API to delete the transaction)
-    console.log(`Transaction with ID: ${id} deleted.`);
-
-    // After deletion, filter out the deleted transaction from the list
-    const updatedTransactions = transactions.filter((transaction) => transaction.id !== id);
-    // Assuming transactions is a state variable, you'd update it here
-    // setTransactions(updatedTransactions);
-  };
-
-
+  // const deleteFn = (id) => {
+  //   console.log(`Transaction with ID: ${id} deleted.`);
+  //   const updatedTransactions = transactions.filter((transaction) => transaction.id !== id);
+  // };
 
   return (
     <div className="w-full max-w-screen-xl mx-auto space-y-8">
+      {/* Filter */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"/>
+          <Input className="pl-8"
+            placeholder="Search Transactions.."
+            value={searchterm}
+            onChange={(e) => setSearchterm(e.target.value)} />
+        </div>
+        <div className="flex gap-4">
+          <Select value={typeFilter} onValueChange={settypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="INCOME">Income</SelectItem>
+              <SelectItem value="EXPENSE">Expense</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={recurringFilter} onValueChange={(value) => setrecurringFilter(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="All Transactions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recurring">Recurring Only</SelectItem>
+              <SelectItem value="non-recurring">Non-Recurring</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {selectedTransactions.length > 0 && (
+            <div>
+              <Button className="bg-red-700">Delete ({selectedTransactions.length}) Items</Button>
+            </div>
+          )}
+        </div>
+      </div>
       <div className="relative w-full">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-indigo-500/10 to-blue-500/10 rounded-xl blur-xl"></div>
-        
         <Table className="w-full rounded-xl overflow-hidden shadow-[0_0_40px_rgba(139,92,246,0.1)] backdrop-blur-sm border border-purple-500/20 relative">
           <TableCaption className="text-black mb-6 text-lg font-semibold pulsing-text">
             Premium Transaction Analytics
           </TableCaption>
-          
+
           <TableHeader className="bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 border-b border-purple-500/30">
             <TableRow>
               <TableHead className="w-[50px] text-purple-100 font-bold py-6 text-base" onClick={() => handleSort('select')}>
@@ -157,74 +197,43 @@ function Transactiontable({ transactions }) {
                   </TableCell>
                   <TableCell className="font-medium text-gray-100 py-5 group-hover:text-purple-300">{invoice.description}</TableCell>
                   <TableCell className="text-gray-300 pl-6 group-hover:text-purple-300">
-                    {new Date(invoice.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    {/* Here use the time element with suppressHydrationWarning */}
+                    <time dateTime={invoice.date} suppressHydrationWarning>
+                      {invoice.date ? format(new Date(invoice.date), "MMMM dd, yyyy") : "N/A"}
+                    </time>
                   </TableCell>
                   <TableCell className="capitalize">
-                    <span style={{ background: categoryColors[invoice.category] }} className="px-2 py-1 rounded">
+                    <span style={{ background: categoryColors[invoice.category] || "#ccc" }} className="px-2 py-1 rounded">
                       {invoice.category}
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    <span className={`inline-flex items-center mr-8 justify-end gap-1 ${invoice.type === "EXPENSE" ? "text-red-500" : "text-green-500"}`}>
-                      {invoice.type === "EXPENSE" ? "- " : "+ "}
-                      {invoice.amount.toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })}
+                    <span className={`inline-flex items-center mr-8 justify-end gap-1 ${invoice.type === "EXPENSE" ? "text-red-400" : "text-green-400"}`}>
+                      <DollarSign className="h-4 w-4 text-current" /> {invoice.amount}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right pr-6 font-medium text-gray-100 py-5 group-hover:text-purple-300">
-                    {invoice.isRecurring ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <Badge className="gap-2 bg-red-500">
-                              <RefreshCw className="h-3 w-3" />
-                              {RECURRING_INTERVALS[invoice.recurringInterval]}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <div className="bg-green-400 text-black px-4 py-3 rounded-lg shadow-lg animate-fadeIn w-max">
-                              <div className="font-semibold mb-1 text-black">Next Date:</div>
-                              <div className="text-white text-base">
-                                {new Date(invoice.nextRecurringDate).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })}
-                              </div>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <Badge className="gap-2">
-                        <Clock className="h-3 w-3" />
-                        One time
-                      </Badge>
-                    )}
+                  <TableCell className="text-center">
+                    {invoice.recurring ? RECURRING_INTERVALS[invoice.recurring] : "None"}
                   </TableCell>
-                   {/*For Delete Drop Down */}
-                   <TableCell className="text-right font-medium">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="h-8 w-8 mr-4">
-                            <MoreHorizontal className="h-4 w-4 text-white"/>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuLabel>Edit</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive" onClick={() => deleteFn(invoice.id)}>
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel>Edit Transaction</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => Router.push(`/edit/${invoice.id}`)}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => deleteFn(invoice.id)}>
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))
             )}
