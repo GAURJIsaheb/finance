@@ -1,9 +1,13 @@
 import CreateAccountDrawer from '@/components/create-account-drawer'
 import { Card, CardContent } from '@/components/ui/card'
+import { getUserAccount } from '@/Serveractions/dashbaordAction'
 import { Plus } from 'lucide-react'
 import React  from 'react'
+import AccountCard from './_components/account-card'
 
-function Dashboardpage() {
+async function Dashboardpage() {
+  const accounts=await getUserAccount();
+  //console.log(accounts);
   return (
     <div className="px-5">
             <h1 className="text-6xl font-bold text-purple-700 mb-8 ">Dashboard</h1>
@@ -23,6 +27,14 @@ function Dashboardpage() {
                 </CardContent>
               </Card>
             </CreateAccountDrawer>
+            
+            
+            {/* Mapping over accounts */}
+            {accounts && Object.values(accounts).length > 0 && Object.values(accounts).map((item) => {
+              return (
+              <AccountCard key={item.id} account={item}/>
+          );
+        })}
           </div>
 
           

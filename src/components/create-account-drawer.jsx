@@ -102,7 +102,7 @@ function CreateAccountDrawer({children}) {
                        <div className="space-y-2">
                         <label htmlFor='name' className="text-sm font-medium">Account Name
                         </label>
-                        <Input id="name" placeholder="e.g: Aditya Gaur"
+                        <Input id="name" placeholder="e.g: Work"
                         {...register("name")} 
                         />
                         {errors.name && (

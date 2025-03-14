@@ -12,6 +12,10 @@ const serializeTransaction=(obj)=>{//Decimal into Number mai convert krega Amoun
     if(obj.balance){
         serialized.balance=obj.balance.toNumber();
     }
+    if(obj.amount){
+        serialized.balance=obj.balance.toNumber();
+    }
+    return serialized;
 
 }
 export async function createAccount(data){//data se,,-- accountsTable_Var -- Table ka,,name,type,balance,isDefault,,pass krenge
@@ -69,6 +73,47 @@ export async function createAccount(data){//data se,,-- accountsTable_Var -- Tab
     
     }
     catch(error){
-        throw new Error("Error in Last Catch message in dashboardAction.js file"+error.message);
+        throw new Error("Error in Last Catch message in dashboardAction.js 1st Function file"+error.message);
+    }
+}
+
+
+
+
+
+
+
+//2nd server action to render the details of Account
+export async function getUserAccount(){
+    try {
+        const {userId}=await auth();
+        if(!userId){
+            throw new Error("No User_Id found in dashboardAction.js File");
+        }
+        const user=await db_Var.usersTable_Var.findUnique({
+            where:{clerkUserId:userId},//clerkUserId-->aaya hai--->usersTable_Var se-->prisma.schema se
+        });
+        if(!user){
+            throw new Error("User not found in accountsTable ");//Sirf Database likh dena baad mai
+        }
+
+        //login kiye gye user ki id mil gye to accountsTable_Var se account table mai dhundho usae
+        const account=await db_Var.accountsTable_Var.findMany({
+            where:{userId:user.id},
+            orderBy:{createdAt:"desc"},
+            include:{
+                _count:{
+                    select:{
+                        transactions:true
+                    }
+                }
+            }
+        });
+        // **Fix: Map over accounts and serialize each one**
+        const serializedAccounts = account.map(serializeTransaction);
+        return serializedAccounts;
+        
+    } catch (error) {
+        throw new Error("Error in Last Catch message in dashboardAction.js file 2nd Function"+error.message);
     }
 }

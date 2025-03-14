@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { toast } from "sonner";
 
-//Hook hai ye page..jo Error state,,data fetch vagera krega
+//Hook hai ye,,
+//  page..jo Error state,,data fetch vagera krega
 const useFetch=(cb)=>{
     const [data,setdata]=useState(undefined);
     const [loading,setloading]=useState(false);

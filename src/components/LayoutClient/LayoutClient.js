@@ -7,14 +7,15 @@ import { Toaster } from "sonner";
 
 export default function LayoutClient({ children }) {
   const pathname = usePathname();
-  const hideLayout = ["/sign-in", "/sign-up"].includes(pathname);
+  const hideLayoutHeader=["/sign-in", "/sign-up"].includes(pathname);
+  const hideLayoutFooter = ["/sign-in", "/sign-up"].includes(pathname) || pathname.startsWith("/account/");
 
   return (
     <>
-      {!hideLayout && <Header />}
+      {!hideLayoutHeader && <Header />}
       <main className="flex-1">{children}</main>
       <Toaster richColors/>
-      {!hideLayout && <Footer />}
+      {!hideLayoutFooter && <Footer />}
     </>
   );
 }
