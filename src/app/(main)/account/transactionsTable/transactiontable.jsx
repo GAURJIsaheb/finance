@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Checkbox } from "@/components/ui/checkbox"
 import { format } from "date-fns";
+
 import {
   Select,
   SelectContent,
@@ -34,7 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw, Search } from 'lucide-react';
+import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw, RotateCcw, Search } from 'lucide-react';
 import { categoryColors } from '@/data/category';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -169,10 +170,10 @@ function Transactiontable({ transactions }) {
               <TableHead className="text-right text-purple-100 font-bold pr-8 text-base cursor-pointer" onClick={() => handleSort('amount')}>
                 Amount {sortConfig.field === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </TableHead>
-              <TableHead className="text-right text-purple-100 font-bold text-base pr-8 cursor-pointer" onClick={() => handleSort('recurring')}>
+              <TableHead className="text-right text-purple-100 font-bold text-base pr-24 cursor-pointer" onClick={() => handleSort('recurring')}>
                 Recurring
               </TableHead>
-              <TableHead className="text-right text-purple-100 font-bold text-base">
+              <TableHead className="text-right text-purple-100 pr-16 font-bold text-base">
                 Options
               </TableHead>
             </TableRow>
@@ -199,7 +200,7 @@ function Transactiontable({ transactions }) {
                   <TableCell className="text-gray-300 pl-6 group-hover:text-purple-300">
                     {/* Here use the time element with suppressHydrationWarning */}
                     <time dateTime={invoice.date} suppressHydrationWarning>
-                      {invoice.date ? format(new Date(invoice.date), "MMMM dd, yyyy") : "N/A"}
+                      {format(new Date(invoice.date),"PP")}
                     </time>
                   </TableCell>
                   <TableCell className="capitalize">
@@ -212,8 +213,31 @@ function Transactiontable({ transactions }) {
                       <DollarSign className="h-4 w-4 text-current" /> {invoice.amount}
                     </span>
                   </TableCell>
-                  <TableCell className="text-center">
-                    {invoice.recurring ? RECURRING_INTERVALS[invoice.recurring] : "None"}
+                  <TableCell className="pl-32">
+                    {invoice.isRecurring ?(
+                          <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Badge className="gap-1 bg-red-600">
+                                <RefreshCw className="h-3 w-3"/>
+                                  {RECURRING_INTERVALS[invoice.recurringInterval]}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-lime-400 text-black font-medium">
+                              <div>
+                                <div>Next Date:</div>
+                                  <div>{format(new Date(invoice.nextRecurringDate),"PP")}</div>
+
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                    ):(
+                        <Badge className="gap-1">
+                          <RotateCcw className="h-3 w-3"/>
+                            One-Time
+                        </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     <DropdownMenu>
@@ -238,6 +262,23 @@ function Transactiontable({ transactions }) {
               ))
             )}
           </TableBody>
+          {/* Table Footer */}
+          <TableFooter className="w-full bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 border-t border-purple-500/30">
+            <TableRow>
+              <TableCell colSpan={6} className="text-purple-100 font-bold py-6 text-base">
+                Total Balance
+              </TableCell>
+              <TableCell className="text-right text-purple-100 font-bold text-base">
+                <span className="inline-flex items-center justify-end gap-1">
+                  <DollarSign className="h-4 w-4" />
+                  {transactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}
+                </span>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
     </div>
