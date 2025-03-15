@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import CreateAccountDrawer from '@/components/create-account-drawer'
 import { Card, CardContent } from '@/components/ui/card'
 import { getUserAccount } from '@/Serveractions/dashbaordAction'

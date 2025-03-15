@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useDebounce } from 'use-debounce';
 import { Checkbox } from "@/components/ui/checkbox"
 import { format } from "date-fns";
 
@@ -35,7 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw, RotateCcw, Search } from 'lucide-react';
+import { ArrowUpDown, Clock, DollarSign, MoreHorizontal, RefreshCw, RotateCcw, Search, Trash2, X } from 'lucide-react';
 import { categoryColors } from '@/data/category';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,10 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 
 function Transactiontable({ transactions }) {
+
+
+
+
   const Router = useRouter();
   const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [sortConfig, setSortConfig] = useState({
@@ -53,6 +58,51 @@ function Transactiontable({ transactions }) {
   const [searchterm, setSearchterm] = useState("");
   const [typeFilter, settypeFilter] = useState("");
   const [recurringFilter, setrecurringFilter] = useState("");
+
+  // Memoized Filtering and Sorting
+  const filteredAndSortedTransactions = useMemo(() => {
+    let result = [...transactions];
+
+    // Apply Search Filter
+    if (searchterm) {
+      const searchLower = searchterm.toLowerCase();
+      result = result.filter((transaction) => 
+        transaction.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply Type Filter
+    if (typeFilter) {
+      result = result.filter((transaction) => transaction.type === typeFilter);
+    }
+
+    // Apply Recurring Filter
+    if (recurringFilter) {
+      result = result.filter((transaction) =>
+        recurringFilter === "recurring" ? transaction.isRecurring : !transaction.isRecurring
+      );
+    }
+
+    // Apply Sorting
+    result.sort((a, b) => {
+      if (sortConfig.field === "date") {
+        return sortConfig.direction === "asc"
+          ? new Date(a.date) - new Date(b.date)
+          : new Date(b.date) - new Date(a.date);
+      }
+      if (sortConfig.field === "amount") {
+        return sortConfig.direction === "asc" ? a.amount - b.amount : b.amount - a.amount;
+      }
+      if (sortConfig.field === "description") {
+        return sortConfig.direction === "asc"
+          ? a.description.localeCompare(b.description)
+          : b.description.localeCompare(a.description);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [transactions, searchterm, typeFilter, recurringFilter, sortConfig]);
 
   const handleSort = (field) => {
     setSortConfig((current) => ({
@@ -85,15 +135,21 @@ function Transactiontable({ transactions }) {
     return 0;
   });
 
-  const filteredAndSortedTransactions = sortedTransactions.filter(
-    (transaction) => transaction.status === 'COMPLETED'
-  );
 
   const handleCheckboxChange = (id) => {
     setSelectedTransactions((prev) =>
       prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]
     );
   };
+
+  //Delete of Selected Items Function
+  const handleBulkDelete=()=>{}
+  const clearAllFilters=()=>{
+    setSearchterm("");
+    settypeFilter("");
+    setrecurringFilter("");
+    setSelectedTransactions([]);
+  }
 
   const RECURRING_INTERVALS = {
     DAILY: "Daily",
@@ -119,7 +175,7 @@ function Transactiontable({ transactions }) {
             onChange={(e) => setSearchterm(e.target.value)} />
         </div>
         <div className="flex gap-4">
-          <Select value={typeFilter} onValueChange={settypeFilter}>
+          <Select value={typeFilter} onValueChange={(value) => settypeFilter(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
@@ -134,6 +190,7 @@ function Transactiontable({ transactions }) {
               <SelectValue placeholder="All Transactions" />
             </SelectTrigger>
             <SelectContent>
+      
               <SelectItem value="recurring">Recurring Only</SelectItem>
               <SelectItem value="non-recurring">Non-Recurring</SelectItem>
             </SelectContent>
@@ -141,9 +198,20 @@ function Transactiontable({ transactions }) {
 
           {selectedTransactions.length > 0 && (
             <div>
-              <Button className="bg-red-700">Delete ({selectedTransactions.length}) Items</Button>
+              <Button className="bg-red-700" onClick={handleBulkDelete}>
+                <Trash2 className="h-4 w-4 mr-3"/>
+                Delete ({selectedTransactions.length}) Items</Button>
             </div>
           )}
+
+          {(searchterm||typeFilter||recurringFilter) &&
+            (<Button 
+              variant="outline" 
+              size="icon"
+              onClick={clearAllFilters}
+              title="Clear Filters"
+            ><X className="h-4 w-4"/></Button>)
+          }
         </div>
       </div>
       <div className="relative w-full">
@@ -153,7 +221,7 @@ function Transactiontable({ transactions }) {
             Premium Transaction Analytics
           </TableCaption>
 
-          <TableHeader className="bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 border-b border-purple-500/30">
+          <TableHeader className="bg-gradient-to-r from-slate-900 via-purple-900/90 to-slate-900 border-b border-purple-500/30 ">
             <TableRow>
               <TableHead className="w-[50px] text-purple-100 font-bold py-6 text-base" onClick={() => handleSort('select')}>
                 Select
@@ -170,7 +238,7 @@ function Transactiontable({ transactions }) {
               <TableHead className="text-right text-purple-100 font-bold pr-8 text-base cursor-pointer" onClick={() => handleSort('amount')}>
                 Amount {sortConfig.field === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </TableHead>
-              <TableHead className="text-right text-purple-100 font-bold text-base pr-24 cursor-pointer" onClick={() => handleSort('recurring')}>
+              <TableHead className="text-right text-purple-100 font-bold text-base pr-28 cursor-pointer" onClick={() => handleSort('recurring')}>
                 Recurring
               </TableHead>
               <TableHead className="text-right text-purple-100 pr-16 font-bold text-base">

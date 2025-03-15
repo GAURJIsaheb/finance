@@ -13,7 +13,7 @@ const serializeTransaction=(obj)=>{//Decimal into Number mai convert krega Amoun
         serialized.balance=obj.balance.toNumber();
     }
     if(obj.amount){
-        serialized.balance=obj.balance.toNumber();
+        serialized.balance=obj.amount.toNumber();
     }
     return serialized;
 
@@ -98,22 +98,24 @@ export async function getUserAccount(){
         }
 
         //login kiye gye user ki id mil gye to accountsTable_Var se account table mai dhundho usae
-        const account=await db_Var.accountsTable_Var.findMany({
-            where:{userId:user.id},
-            orderBy:{createdAt:"desc"},
-            include:{
-                _count:{
-                    select:{
-                        transactions:true
-                    }
-                }
-            }
-        });
+        const account = await db_Var.accountsTable_Var.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: "desc" },
+            include: {
+                _count: {
+                    select: {
+                        transactions: true,
+                    },
+                },
+            },
+        }) || [];
+        
         // **Fix: Map over accounts and serialize each one**
         const serializedAccounts = account.map(serializeTransaction);
         return serializedAccounts;
         
     } catch (error) {
+        console.error("Error in getUserAccount:", error);
         throw new Error("Error in Last Catch message in dashboardAction.js file 2nd Function"+error.message);
     }
 }
