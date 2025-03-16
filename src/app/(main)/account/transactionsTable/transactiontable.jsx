@@ -42,14 +42,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import useFetch from '../../../../../hooks/use-fetch';
+import { bulkDeleteTransactions } from '@/Serveractions/accountsAction';
+import { BarLoader } from 'react-spinners';
+import { toast } from 'sonner';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { set } from 'react-hook-form';
 
-function Transactiontable({ transactions }) {
+function Transactiontable({ transactions ,account}) {
+  const accountbalance = account.balance;  // Access the balance here
 
 
 
 
   const Router = useRouter();
   const [selectedTransactions, setSelectedTransactions] = useState([]);
+  const [singleSelectedTransactions,setsingleSelectedTransactions]=useState([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
     direction: "desc",
@@ -58,6 +66,109 @@ function Transactiontable({ transactions }) {
   const [searchterm, setSearchterm] = useState("");
   const [typeFilter, settypeFilter] = useState("");
   const [recurringFilter, setrecurringFilter] = useState("");
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // New state for dialog
+
+  //Delete Transactions
+  const {loading:deleteLoading,
+    fn:deletefn,
+    data:deletedData,
+  }=useFetch(bulkDeleteTransactions);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const handleBulkDelete = async (confirm = false) => {
+    if (!confirm) {
+      // Show the confirmation dialog instead of window.confirm
+      setShowDeleteConfirm(true);
+      return;
+    }
+    
+    // If confirmed, proceed with deletion
+    await deletefn(selectedTransactions);
+    setSelectedTransactions([]);
+    setShowDeleteConfirm(false);
+  }
+  //Direct Delete kr rha ye ,,Confirmation nhi aayega
+  
+  const singleElementDirectDelete = async (id) => {
+    if (!id) {
+      // Show the confirmation dialog instead of window.confirm
+      setShowDeleteConfirm(true);
+      return;
+    }
+    
+    // If confirmed, proceed with deletion
+    await deletefn([id]);
+    setSelectedTransactions([]);
+    setShowDeleteConfirm(false);
+  }
+
+  useEffect(()=>{
+    if(deletedData && !deleteLoading){
+      toast.success("Transaction Deleted Successfully !!");
+      
+    }
+  },[deletedData,deleteLoading])
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Memoized Filtering and Sorting
   const filteredAndSortedTransactions = useMemo(() => {
@@ -111,6 +222,11 @@ function Transactiontable({ transactions }) {
     }));
   };
 
+    //taaki Total vaala part bhi update ho
+    const total = useMemo(() => {
+      return filteredAndSortedTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+    }, [filteredAndSortedTransactions]);
+    
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (sortConfig.field === 'date') {
       return sortConfig.direction === 'asc'
@@ -142,8 +258,6 @@ function Transactiontable({ transactions }) {
     );
   };
 
-  //Delete of Selected Items Function
-  const handleBulkDelete=()=>{}
   const clearAllFilters=()=>{
     setSearchterm("");
     settypeFilter("");
@@ -158,53 +272,132 @@ function Transactiontable({ transactions }) {
     YEARLY: "Yearly",
   };
 
-  // const deleteFn = (id) => {
-  //   console.log(`Transaction with ID: ${id} deleted.`);
-  //   const updatedTransactions = transactions.filter((transaction) => transaction.id !== id);
-  // };
+
 
   return (
     <div className="w-full max-w-screen-xl mx-auto space-y-8">
+      {deleteLoading && ( <BarLoader className="mt-4" width="100%" color="#9333ea"/>)}
       {/* Filter */}
       <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground"/>
-          <Input className="pl-8"
-            placeholder="Search Transactions.."
-            value={searchterm}
-            onChange={(e) => setSearchterm(e.target.value)} />
-        </div>
-        <div className="flex gap-4">
-          <Select value={typeFilter} onValueChange={(value) => settypeFilter(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="INCOME">Income</SelectItem>
-              <SelectItem value="EXPENSE">Expense</SelectItem>
-            </SelectContent>
-          </Select>
+  <div className="relative flex-1">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <Input 
+      className="pl-10 h-10 border border-input bg-background rounded-lg shadow-sm 
+        focus:ring-2 focus:ring-primary focus:border-primary transition-all
+        placeholder:text-muted-foreground/70"
+      placeholder="Search Transactions..."
+      value={searchterm}
+      onChange={(e) => setSearchterm(e.target.value)}
+    />
+  </div>
+  <div className="flex gap-4">
+    <Select value={typeFilter} onValueChange={(value) => settypeFilter(value)}>
+      <SelectTrigger 
+        className="w-[180px] h-10 border border-input bg-background rounded-lg shadow-sm
+          hover:bg-accent hover:text-accent-foreground focus:ring-2 focus:ring-primary
+          transition-all"
+      >
+        <SelectValue placeholder="All Types" />
+      </SelectTrigger>
+      <SelectContent className="bg-background border border-input rounded-lg shadow-lg">
+        <SelectItem 
+          value="INCOME" 
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent 
+            focus:text-accent-foreground transition-colors"
+        >
+          Income
+        </SelectItem>
+        <SelectItem 
+          value="EXPENSE"
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent 
+            focus:text-accent-foreground transition-colors"
+        >
+          Expense
+        </SelectItem>
+      </SelectContent>
+    </Select>
 
-          <Select value={recurringFilter} onValueChange={(value) => setrecurringFilter(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Transactions" />
-            </SelectTrigger>
-            <SelectContent>
-      
-              <SelectItem value="recurring">Recurring Only</SelectItem>
-              <SelectItem value="non-recurring">Non-Recurring</SelectItem>
-            </SelectContent>
-          </Select>
+    <Select value={recurringFilter} onValueChange={(value) => setrecurringFilter(value)}>
+      <SelectTrigger 
+        className="w-[180px] h-10 border border-input bg-background rounded-lg shadow-sm
+          hover:bg-accent hover:text-accent-foreground focus:ring-2 focus:ring-primary
+          transition-all"
+      >
+        <SelectValue placeholder="All Transactions" />
+      </SelectTrigger>
+      <SelectContent className="bg-background border border-input rounded-lg shadow-lg">
+        <SelectItem 
+          value="recurring"
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent 
+            focus:text-accent-foreground transition-colors"
+        >
+          Recurring Only
+        </SelectItem>
+        <SelectItem 
+          value="non-recurring"
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent 
+            focus:text-accent-foreground transition-colors"
+        >
+          Non-Recurring
+        </SelectItem>
+      </SelectContent>
+    </Select>
 
-          {selectedTransactions.length > 0 && (
-            <div>
-              <Button className="bg-red-700" onClick={handleBulkDelete}>
-                <Trash2 className="h-4 w-4 mr-3"/>
-                Delete ({selectedTransactions.length}) Items</Button>
+
+
+             {/* Delete Confirmation Dialog */}
+    {showDeleteConfirm && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <Card className="w-[400px] bg-gradient-to-br from-slate-900 to-purple-900/20 border border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="text-purple-100 text-xl">
+              Confirm Deletion
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-200">
+              Are you sure to delete {selectedTransactions.length} transaction {selectedTransactions.length > 1 ? 's' : ''}?
+            </p>
+            <p className="text-red-400 text-sm mt-2">
+              This action cannot be undone.
+            </p>
+          </CardContent>
+          <CardFooter className="flex justify-end gap-3">
+            <Button 
+              variant="outline"
+              className="border-purple-500 text-black hover:text-blue-400"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-red-700 hover:bg-red-800"
+                    onClick={() => handleBulkDelete(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Confirm
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
           )}
+          
 
-          {(searchterm||typeFilter||recurringFilter) &&
+          {selectedTransactions.length > 0 && (
+    <div>
+      {/* Bulk Delete Button */}
+      <Button 
+        className="bg-red-700" 
+        onClick={() => setShowDeleteConfirm(true)}
+      >
+        <Trash2 className="h-4 w-4 mr-3"/>
+        Delete ({selectedTransactions.length}) Items
+      </Button>
+    </div>
+      )}
+
+
+          {(searchterm||typeFilter||recurringFilter ||selectedTransactions.length>0) &&
             (<Button 
               variant="outline" 
               size="icon"
@@ -320,7 +513,11 @@ function Transactiontable({ transactions }) {
                         <DropdownMenuItem onClick={() => Router.push(`/edit/${invoice.id}`)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => deleteFn(invoice.id)}>
+                        <DropdownMenuItem 
+                        onClick={() =>
+                          singleElementDirectDelete(invoice.id)
+                        }
+                          >
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -339,10 +536,8 @@ function Transactiontable({ transactions }) {
               <TableCell className="text-right text-purple-100 font-bold text-base">
                 <span className="inline-flex items-center justify-end gap-1">
                   <DollarSign className="h-4 w-4" />
-                  {transactions.reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })}
+                  ${parseFloat(accountbalance).toFixed(2)}
+
                 </span>
               </TableCell>
             </TableRow>

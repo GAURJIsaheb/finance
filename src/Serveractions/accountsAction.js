@@ -95,3 +95,75 @@ export async function getAccountTransactions(accountId){
         throw new Error(`Error in accountsAction.js file 2nd Function : ${error.message}`)
     }
 }
+
+
+
+
+
+
+//For Deleting Bulk Transaction for the Transactiontable.jsx
+export async function bulkDeleteTransactions(transactionsIds) {
+    try {
+        // Check if the user is authenticated
+        const { userId } = await auth();
+        if (!userId) {
+            throw new Error("No User_Id found in dashboardAction.js File");
+        }
+
+        // Fetch the user from the users table
+        const user = await db_Var.usersTable_Var.findUnique({
+            where: { clerkUserId: userId }, // userId linked from clerkUserId in usersTable_Var
+        });
+
+        if (!user) {
+            throw new Error("User not found in usersTable_Var Database");
+        }
+
+        // Get the transactions to delete
+        const transactions = await db_Var.TransactionTable_Var.findMany({
+            where: {
+                id: { in: transactionsIds },
+                userId: user.id,
+            }
+        });
+
+        // Logic to calculate account balance changes based on the type of transaction (EXPENSE or INCOME)
+        const accountBalanceChanges = transactions.reduce((acc, transaction) => {
+            const change = transaction.type === "EXPENSE" ? transaction.amount : -transaction.amount;
+            acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
+            return acc;
+        }, {});
+
+        // Perform the deletion and balance update in a transaction to ensure atomicity
+        await db_Var.$transaction(async (tx) => {
+            // Delete the transactions in bulk
+            await tx.TransactionTable_Var.deleteMany({
+                where: {
+                    id: { in: transactionsIds },
+                    userId: user.id,
+                }
+            });
+
+            // Update account balances based on the changes calculated earlier
+            for (const [accountId, balanceChange] of Object.entries(accountBalanceChanges)) {
+                await tx.accountsTable_Var.update({
+                    where: { id: accountId },
+                    data: {
+                        balance: {
+                            increment: balanceChange,
+                        },
+                    },
+                });
+            }
+        });
+
+        // Revalidate paths to refresh the data
+        revalidatePath("/dashboard");
+        revalidatePath("/account/[id]");
+
+        return { success: true };
+    } catch (error) {
+        // Handle errors and provide a detailed message
+        return { success: false, error: error.message };
+    }
+}

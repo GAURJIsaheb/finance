@@ -43,7 +43,7 @@ function AccountCard({ account }) {
   const handleNavigation = (e) => {
     setIsNavigating(true); // Show loading state
     // Simulate navigation delay (remove setTimeout in production if not needed)
-    setTimeout(() => setIsNavigating(false), 9000); // Reset after 2s (adjust as needed)
+    setTimeout(() => setIsNavigating(false), 15000); // Reset after 15s (adjust as needed),,krna nhi aa rha ,,,meko ki page change hoye,,tbh tk Lading ghoye
   };
 
   // Handle success
