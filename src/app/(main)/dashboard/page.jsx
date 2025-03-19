@@ -5,14 +5,31 @@ import { getUserAccount } from '@/Serveractions/dashbaordAction'
 import { Plus } from 'lucide-react'
 import React  from 'react'
 import AccountCard from './_components/account-card'
+import { getCurrentBudget } from '@/Serveractions/budget';
+import BudgetComponent from './_components/budgetComponent';
 
 async function Dashboardpage() {
   const accounts=await getUserAccount();
+
+
+  //Budget is for Default Account,,only
+  const defaultAccount=accounts?.find((account)=>account.isDefault);
+  let budgetData=null;
+  if(defaultAccount){
+    budgetData=await getCurrentBudget(defaultAccount.id);
+  }
   //console.log(accounts);
   return (
     <div className="px-5">
             <h1 className="text-6xl font-bold text-purple-700 mb-8 ">Dashboard</h1>
-          {/*Budget Progess */}
+            {defaultAccount && 
+            <BudgetComponent
+              initialBudget={budgetData?.budget}
+              currentExpenses={budgetData?.currentExpenses || 0}
+
+            />}
+  
+
 
 
           {/* Overview */}
