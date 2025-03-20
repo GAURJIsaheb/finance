@@ -69,10 +69,8 @@ export async function getCurrentBudget(accountId){
 //for updating the budget
 export async function updatingBudget(amount) {
     try {
-        //console.log("Updating budget for amount:", amount);
         const { userId } = await auth();
         if (!userId) {
-            //console.log("No User_Id found");
             throw new Error("No User_Id found in dashboardAction.js File");
         }
 
@@ -85,19 +83,26 @@ export async function updatingBudget(amount) {
             throw new Error("User not found in accountsTable");
         }
 
-        const budget = await db_Var.BudgetTable_Var.upsert({
-            where: { id: user.id },
-            update: { amount },
-            create: { userId: user.id, amount },
+        const existingBudget = await db_Var.BudgetTable_Var.findFirst({
+            where: { userId: user.id }
         });
 
-       // console.log("Budget updated successfully:", budget);
+        let budget;
+        if (existingBudget) {
+            budget = await db_Var.BudgetTable_Var.update({
+                where: { id: existingBudget.id },
+                data: { amount },
+            });
+        } else {
+            budget = await db_Var.BudgetTable_Var.create({
+                data: { userId: user.id, amount },
+            });
+        }
+
+        // Ensure UI updates
         revalidatePath("/dashboard");
 
-        return {
-            success: true,
-            data: { ...budget, amount: budget.amount.toNumber() },
-        };
+        return { success: true, data: { ...budget, amount: budget.amount.toNumber() } };
     } catch (error) {
         console.log("Error in updatingBudget:", error);
         return { success: false, error: error.message };

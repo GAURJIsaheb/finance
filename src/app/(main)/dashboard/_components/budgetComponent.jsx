@@ -58,7 +58,7 @@ function BudgetComponent({initialBudget,currentExpenses}) {
     };
     //when Budget is updated
     useEffect(()=>{
-        console.log("Updated Budget from useFetch:", updateBudget);
+        //console.log("Updated Budget from useFetch:", updateBudget);
         if(updateBudget?.success){
             setnewBudget(updateBudget.data.amount.toString());
             setisEditing(false);
