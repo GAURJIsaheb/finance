@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 export default function LayoutClient({ children }) {
   const pathname = usePathname();
   const hideLayoutHeader=["/sign-in", "/sign-up"].includes(pathname);
-  const hideLayoutFooter = ["/sign-in", "/sign-up"].includes(pathname) || pathname.startsWith("/account/");
+  const hideLayoutFooter = ["/sign-in", "/sign-up"].includes(pathname) || pathname.startsWith("/account/") || pathname.startsWith("/transactions/");
 
   return (
     <>
