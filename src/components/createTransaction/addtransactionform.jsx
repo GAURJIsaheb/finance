@@ -27,6 +27,7 @@ import { Calendar } from '../ui/calendar'
 import { Switch } from '../ui/switch'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { ReceiptScanner } from '../AiScanner/ReceiptScanner'
 
 // Loading Component
 const LoadingScreen = () => {
@@ -53,19 +54,33 @@ const LoadingScreen = () => {
   )
 }
 
-function AddTransactionForm({account, categories}) {
+function AddTransactionForm({account, categories ,editMode = false,initialData = null,}) {
     const [isRedirecting, setIsRedirecting] = useState(false)
     const {register, setValue, handleSubmit, formState:{errors}, watch, getValues, reset} = useForm({
         resolver: zodResolver(transactionFormschema),
-        defaultValues: {
+        defaultValues:
+      editMode && initialData
+        ? {
+            type: initialData.type,
+            amount: initialData.amount.toString(),
+            description: initialData.description,
+            accountId: initialData.accountId,
+            category: initialData.category,
+            date: new Date(initialData.date),
+            isRecurring: initialData.isRecurring,
+            ...(initialData.recurringInterval && {
+              recurringInterval: initialData.recurringInterval,
+            }),
+          }
+        : {
             type: "EXPENSE",
             amount: "",
             description: "",
-            accountId: account.find((ac)=> ac.isDefault)?.id || "",
+            accountId: account.find((ac) => ac.isDefault)?.id,
             date: new Date(),
             isRecurring: false,
-        }
-    });
+          },
+  });
 
     const router = useRouter();
     const {loading: transactionLoading, fn: transactionFunction, data: transactionResult} = useFetch(createTransaction);
@@ -98,13 +113,35 @@ function AddTransactionForm({account, categories}) {
           toast.error(transactionResult.error || "Failed to create transaction");
         }
       }
-    }, [transactionResult, transactionLoading, router, reset])
+    }, [transactionResult, transactionLoading, router, reset]);
+
+
+    //for Ai scanner
+    const handleScanComplete=(scannedData)=>{
+      if (scannedData) {
+        console.log("Scanned Data:",scannedData);
+        setValue("amount", scannedData.amount.toString());
+        setValue("date", new Date(scannedData.date));
+        if (scannedData.description) {
+          setValue("description", scannedData.description);
+        }
+        if (scannedData.category) {
+          const matchedCategory = categories.find(cat => cat.name.toLowerCase() === scannedData.category.toLowerCase());
+          if (matchedCategory) {
+            setValue("category", matchedCategory.id); // Set ID, not name
+          }
+        }
+        toast.success("Receipt scanned successfully");
+      }
+    };
 
     return (
       <>
         {isRedirecting && <LoadingScreen />}
         <form className="space-y-6" onSubmit={handleSubmit(onSubmitFunction)}>
-          {/*AI Receipt Scanner placeholder */}
+          {/*AI Receipt Scanner */}
+          <ReceiptScanner onScanComplete={handleScanComplete} />
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Type</label>
             <Select onValueChange={(value)=>setValue("type",value)}
@@ -163,25 +200,28 @@ function AddTransactionForm({account, categories}) {
             </div>
           </div>
 
+
+
           {/* Category */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Category</label>
-            <Select 
-              onValueChange={(value)=>setValue("category",value)}
-              defaultValue={getValues("category")}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Category" />
+            <Select
+              value={watch("category")} // Use watch() to dynamically update selection
+              onValueChange={(value) => setValue("category", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {filteredCategories.map((item)=>(
-                  <SelectItem key={item.id} 
-                    value={item.id}> {item.name} 
+                {filteredCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {errors.category && (
-              <p className="text-sm text-red-600">{errors.category.message}</p>
+              <p className="text-sm text-red-500">{errors.category.message}</p>
             )}
           </div>
 
