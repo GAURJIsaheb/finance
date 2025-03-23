@@ -51,7 +51,7 @@ const Header =() => {
 
 
             <SignedIn>
-            <Link href="/transactions">
+            <Link href="/transactions/createTransaction">
                 <Button variant="outline" className="flex bg-black items-center hover:bg-black hover:scale-105">
                   <PenBox className="text-white" size={18} />
                   <span className="mr-2 text-white">Transactions</span>

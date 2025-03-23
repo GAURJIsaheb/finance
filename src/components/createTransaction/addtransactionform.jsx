@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import useFetch from '../../../hooks/use-fetch'
-import { createTransaction } from '@/Serveractions/createTransaction'
+import { createTransaction, updateTransaction } from '@/Serveractions/createTransaction'
 import {
   Popover,
   PopoverContent,
@@ -25,7 +25,7 @@ import { format } from 'date-fns'
 import { Calendar1Icon } from 'lucide-react'
 import { Calendar } from '../ui/calendar'
 import { Switch } from '../ui/switch'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { ReceiptScanner } from '../AiScanner/ReceiptScanner'
 
@@ -54,12 +54,14 @@ const LoadingScreen = () => {
   )
 }
 
-function AddTransactionForm({account, categories ,editMode = false,initialData = null,}) {
+function AddTransactionForm({account, categories ,editMode = false,initialData = null}) {
+    const searchParams=useSearchParams();
+    const editId=searchParams.get("edit");
     const [isRedirecting, setIsRedirecting] = useState(false)
     const {register, setValue, handleSubmit, formState:{errors}, watch, getValues, reset} = useForm({
         resolver: zodResolver(transactionFormschema),
         defaultValues:
-      editMode && initialData
+          editMode && initialData
         ? {
             type: initialData.type,
             amount: initialData.amount.toString(),
@@ -83,7 +85,7 @@ function AddTransactionForm({account, categories ,editMode = false,initialData =
   });
 
     const router = useRouter();
-    const {loading: transactionLoading, fn: transactionFunction, data: transactionResult} = useFetch(createTransaction);
+    const {loading: transactionLoading, fn: transactionFunction, data: transactionResult} = useFetch( editMode? updateTransaction :createTransaction);
 
     const type = watch("type");
     const isRecurring = watch("isRecurring");
@@ -95,15 +97,20 @@ function AddTransactionForm({account, categories ,editMode = false,initialData =
       const formData = {
         ...data,
         amount: parseFloat(data.amount),
+      };
+      if(editMode){
+        transactionFunction(editId,formData);
       }
-      await transactionFunction(formData)
+      else{
+        await transactionFunction(formData);
+      }
     };
 
     useEffect(() => {
       if (transactionResult) {
         if (transactionResult.success && !transactionLoading) {
           setIsRedirecting(true) // Only show loading for successful case
-          toast.success("Transaction Created Successfully");
+          toast.success(editMode?"Transaction Updated Successfully":"Transaction Created Successfully");
           reset();
           setTimeout(() => {
             router.push(`/account/${transactionResult.data.accountId}`)
@@ -113,7 +120,7 @@ function AddTransactionForm({account, categories ,editMode = false,initialData =
           toast.error(transactionResult.error || "Failed to create transaction");
         }
       }
-    }, [transactionResult, transactionLoading, router, reset]);
+    }, [transactionResult, transactionLoading, router, reset, editMode]);
 
 
     //for Ai scanner
@@ -139,8 +146,10 @@ function AddTransactionForm({account, categories ,editMode = false,initialData =
       <>
         {isRedirecting && <LoadingScreen />}
         <form className="space-y-6" onSubmit={handleSubmit(onSubmitFunction)}>
+        <h1 className="text-5xl bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-8">
+           {editId ? "Edit" : "Add"} Transaction </h1>
           {/*AI Receipt Scanner */}
-          <ReceiptScanner onScanComplete={handleScanComplete} />
+          {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Type</label>
@@ -312,7 +321,7 @@ function AddTransactionForm({account, categories ,editMode = false,initialData =
               className="w-full" 
               disabled={transactionLoading}
             >
-              {transactionLoading ? "Processing..." : "Create Transaction"}
+              {transactionLoading ? "Processing..." : editMode ?"Update Transaction":"Create Transaction"}
             </Button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useMemo } from 'react';
-import { useDebounce } from 'use-debounce';
+import { BarLoader } from 'react-spinners'; // Make sure to import the loader
 import { Checkbox } from "@/components/ui/checkbox"
 import { format } from "date-fns";
 
@@ -44,10 +44,8 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import useFetch from '../../../../../hooks/use-fetch';
 import { bulkDeleteTransactions } from '@/Serveractions/accountsAction';
-import { BarLoader } from 'react-spinners';
 import { toast } from 'sonner';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { set } from 'react-hook-form';
 
 function Transactiontable({ transactions ,account}) {
   const accountbalance = account.balance;  // Access the balance here
@@ -57,7 +55,6 @@ function Transactiontable({ transactions ,account}) {
 
   const Router = useRouter();
   const [selectedTransactions, setSelectedTransactions] = useState([]);
-  const [singleSelectedTransactions,setsingleSelectedTransactions]=useState([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
     direction: "desc",
@@ -271,6 +268,7 @@ function Transactiontable({ transactions ,account}) {
     MONTHLY: "Monthly",
     YEARLY: "Yearly",
   };
+
 
 
 
@@ -510,7 +508,7 @@ function Transactiontable({ transactions ,account}) {
                       <DropdownMenuContent>
                         <DropdownMenuLabel>Edit Transaction</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => Router.push(`/edit/${invoice.id}`)}>
+                        <DropdownMenuItem onClick={() => Router.push(`/transactions/createTransaction?edit=${invoice.id}`)}>
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem 

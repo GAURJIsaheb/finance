@@ -174,3 +174,113 @@ export async function scanReciept({ base64, mimeType }) {
     }
   }
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//edit Button kaam krega is se
+export async function getTransaction(id) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+  
+    const user = await db_Var.usersTable_Var.findUnique({
+      where: { clerkUserId: userId },
+    });
+  
+    if (!user) throw new Error("User not found");
+  
+    const transaction = await db_Var.TransactionTable_Var.findUnique({
+      where: {
+        id,
+        userId: user.id,
+      },
+    });
+  
+    if (!transaction) throw new Error("Transaction not found");
+  
+    return serializeAmountFunction(transaction);
+  }
+
+  export async function updateTransaction(id, data) {
+    try {
+      const { userId } = await auth();
+      if (!userId) throw new Error("Unauthorized");
+  
+      const user = await db_Var.usersTable_Var.findUnique({
+        where: { clerkUserId: userId },
+      });
+  
+      if (!user) throw new Error("User not found");
+  
+      // Get original transaction to calculate balance change
+      const originalTransaction = await db_Var.TransactionTable_Var.findUnique({
+        where: {
+          id,
+          userId: user.id,
+        },
+        include: {
+          account: true,
+        },
+      });
+  
+      if (!originalTransaction) throw new Error("Transaction not found");
+  
+      // Calculate balance changes
+      const oldBalanceChange =
+        originalTransaction.type === "EXPENSE"
+          ? -originalTransaction.amount.toNumber()
+          : originalTransaction.amount.toNumber();
+  
+      const newBalanceChange =
+        data.type === "EXPENSE" ? -data.amount : data.amount;
+  
+      const netBalanceChange = newBalanceChange - oldBalanceChange;
+  
+      // Update transaction and account balance in a transaction
+      const transaction = await db_Var.$transaction(async (tx) => {
+        const updated = await tx.TransactionTable_Var.update({
+          where: {
+            id,
+            userId: user.id,
+          },
+          data: {
+            ...data,
+            nextRecurringDate:
+              data.isRecurring && data.recurringInterval
+                ? calculateNextRecurringDate(data.date, data.recurringInterval)
+                : null,
+          },
+        });
+  
+        // Update account balance
+        await tx.accountsTable_Var.update({
+          where: { id: data.accountId },
+          data: {
+            balance: {
+              increment: netBalanceChange,
+            },
+          },
+        });
+  
+        return updated;
+      });
+  
+      revalidatePath("/dashboard");
+      revalidatePath(`/account/${data.accountId}`);
+  
+      return { success: true, data: serializeAmountFunction(transaction) };
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  

@@ -1,5 +1,5 @@
  import { inngest } from "@/lib/inngest/client";
-import { checkBudgetAlert } from "@/lib/inngest/functions";
+import { checkBudgetAlert, processRecurringTransaction, triggerRecurringTransactions } from "@/lib/inngest/functions";
 
  import { serve } from "inngest/next";
  
@@ -9,7 +9,7 @@ import { checkBudgetAlert } from "@/lib/inngest/functions";
    client: inngest,
    functions: [
      /* your functions will be passed here later! */
-     checkBudgetAlert
+     checkBudgetAlert,triggerRecurringTransactions,processRecurringTransaction
 
    ],
  });
