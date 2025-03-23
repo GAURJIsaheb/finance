@@ -10,15 +10,27 @@ const serializeAmountFunction=(obj)=>(
         amount:obj.amount.toNumber(),
     }
 )
+const baseURL =
+  process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000"; // Fallback for local dev
+
+
+
 export async function createTransaction(data){
 
     try {
         const { userId } = await auth();
                 if (!userId) {
-                    throw new Error("No User_Id found in dashboardAction.js File");
+                    throw new Error("Authorized User not found !");
                 }
-                //Arcjet use krenge to limit the NUMBER of transaction,,user can make in 1 Day
-
+                //Arcjet use krenge to limit the NUMBER of transaction,,user can make in 1 Hour
+                const response = await fetch(`${baseURL}/api/upstash`);
+                const result = await response.json();
+                if (response.status === 429) {
+                throw new Error("Too many requests. Please try again later.");
+                }
+                
         
                 const user = await db_Var.usersTable_Var.findUnique({
                     where: { clerkUserId: userId },
