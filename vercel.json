@@ -1,4 +1,12 @@
 {
+  "build": {
+    "env": {
+      "DATABASE_URL": "your-database-connection-string"
+    },
+    "commands": [
+      "prisma migrate deploy"
+    ]
+  },
 
 
     "rewrites": [
