@@ -6,10 +6,10 @@ import { BarLoader } from 'react-spinners';
 import AccountChart from '../accountchart/accountchart';
 
 export default async function Account({params}) {
-    const paramsObj = await params;
     try {
-    await updateDefaultAccount(paramsObj.id);
-    const accountData = await getAccountTransactions(paramsObj.id);
+    const accountData = await getAccountTransactions(params.id);
+    //await updateDefaultAccount(params.id);
+
     
     if (!accountData) {
         notFound();
