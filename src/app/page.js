@@ -248,7 +248,7 @@ export default function Home() {
             <Link href="/dashboard">
               <Button
                 size="lg"
-                className="bg-neon-green text-black text-2xl font-bold px-12 py-8 rounded-full border-4 border-black shadow-[0_0_20px_rgba(0,255,0,0.8)] hover:bg-electric-pink hover:text-white transition-all duration-300 animate-pulse"
+                className="bg-neon-green text-black text-2xl font-bold px-12 py-8 rounded-full border-4 border-black shadow-[0_0_20px_rgba(0,255,0,0.8)] hover:bg-electric-pink hover:text-white transition-all duration-700 animate-pulse"
               >
                 IGNITE NOW
               </Button>

@@ -44,7 +44,7 @@ body {
   }
 
   .animate-glitch {
-    animation: glitch 2s infinite;
+    animation: glitch 4s infinite;
   }
 
   .glitch-text {
