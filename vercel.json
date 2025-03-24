@@ -1,28 +1,20 @@
-
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "env": {
-    "DATABASE_URL": "postgresql://postgres.pwhuhaftbxisfovxikzd:fIEpw1WvyUh4TQCT@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"  
-    },
-    {
-      "source": "/about",
-      "destination": "/about"
-    },
+
+
+    "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/$1"
+      "destination": "/"
     }
   ]
 }
 
-  
+
+
+
+
+
+
+
+
+
