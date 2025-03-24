@@ -1,4 +1,3 @@
-# Normalize line endings for node_modules and .next
-/node_modules/* text eol=lf
 /.next/* text eol=lf
+
 
