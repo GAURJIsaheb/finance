@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { seedTransactions } from "@/Serveractions/seed";
 import { NextResponse } from "next/server";
 
