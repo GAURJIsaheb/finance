@@ -7,6 +7,7 @@ import AccountChart from '../accountchart/accountchart';
 
 export default async function Account({params}) {
     const paramsObj = await params;
+    try {
     await updateDefaultAccount(paramsObj.id);
     const accountData = await getAccountTransactions(paramsObj.id);
     
@@ -46,4 +47,9 @@ export default async function Account({params}) {
             </div>
         </div>
     )
+} catch (error) {
+    console.error("Error loading account data:", error);
+    notFound();  // Trigger 404 if there's an error
+}
+
 }
