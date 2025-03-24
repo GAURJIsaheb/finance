@@ -1,10 +1,25 @@
+import arcjet, { createMiddleware, detectBot, shield } from '@arcjet/next';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/accounts(.*)','/transactions(.*)'])
-
-export default clerkMiddleware(async (auth, request) => {
+//protecting our website..from BOts,and server attacks
+const aj=arcjet({
+  key:process.env.ARCJET_KEY,
+  rules:[
+    shield({
+      mode:'LIVE'
+    }),
+    detectBot({
+      mode:"LIVE",
+      allow:[//allow krenge jin bots ko
+        "CATEGORY:SEARCH_ENGINE",
+        "GO_HTTP"
+      ]
+    })
+  ]
+})
+const clerk= clerkMiddleware(async (auth, request) => {
   const {userId}=await auth();
   if (!userId && isProtectedRoute(request)) {
     // const {redirectToSignIn}=await auth();
@@ -14,6 +29,7 @@ export default clerkMiddleware(async (auth, request) => {
   }
 })
 
+export default createMiddleware(aj,clerk)
 export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params

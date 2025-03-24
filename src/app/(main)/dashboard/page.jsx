@@ -1,12 +1,13 @@
 export const dynamic = "force-dynamic";
 import CreateAccountDrawer from '@/components/create-account-drawer'
 import { Card, CardContent } from '@/components/ui/card'
-import { getUserAccount } from '@/Serveractions/dashbaordAction'
+import { getDashboardData, getUserAccount } from '@/Serveractions/dashbaordAction'
 import { Plus } from 'lucide-react'
-import React  from 'react'
+import React, { Suspense }  from 'react'
 import AccountCard from './_components/account-card'
 import { getCurrentBudget } from '@/Serveractions/budget';
 import BudgetComponent from './_components/budgetComponent';
+import { DashboardOverview } from './_components/DashboardOverview';
 
 async function Dashboardpage() {
   const accounts=await getUserAccount();
@@ -19,6 +20,8 @@ async function Dashboardpage() {
     budgetData=await getCurrentBudget(defaultAccount.id);
   }
   //console.log(accounts);
+  const transactions = await getDashboardData();
+;
   return (
     <div className="px-5">
             <h1 className="text-6xl font-bold text-purple-700 mb-8 ">Dashboard</h1>
@@ -33,6 +36,10 @@ async function Dashboardpage() {
 
 
           {/* Overview */}
+          <Suspense fallback={"Loading Overiview"}>
+            <DashboardOverview accounts={accounts} transactions={transactions ||[]}/>
+
+          </Suspense>
 
 
           {/*Account Grids */}

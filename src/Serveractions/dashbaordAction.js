@@ -13,7 +13,7 @@ const serializeTransaction=(obj)=>{//Decimal into Number mai convert krega Amoun
         serialized.balance=obj.balance.toNumber();
     }
     if(obj.amount){
-        serialized.balance=obj.amount.toNumber();
+        serialized.amount=obj.amount.toNumber();
     }
     return serialized;
 
@@ -119,3 +119,29 @@ export async function getUserAccount(){
         throw new Error("Error in Last Catch message in dashboardAction.js file 2nd Function"+error.message);
     }
 }
+
+
+
+
+
+
+export async function getDashboardData() {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+  
+    const user = await db_Var.usersTable_Var.findUnique({
+      where: { clerkUserId: userId },
+    });
+  
+    if (!user) {
+      throw new Error("User not found");
+    }
+  
+    // Get all user transactions
+    const transactions = await db_Var.TransactionTable_Var.findMany({
+      where: { userId: user.id },
+      orderBy: { date: "desc" },
+    });
+  
+    return transactions.map(serializeTransaction);
+  }
