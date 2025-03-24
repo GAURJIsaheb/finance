@@ -1,7 +1,7 @@
 {
   "build": {
     "env": {
-      "DATABASE_URL": "your-database-connection-string"
+      "DATABASE_URL": "postgresql://postgres.pwhuhaftbxisfovxikzd:fIEpw1WvyUh4TQCT@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
     },
     "commands": [
       "prisma migrate deploy"
