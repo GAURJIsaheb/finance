@@ -8,7 +8,7 @@ import AccountChart from '../accountchart/accountchart';
 export default async function Account({params}) {
     try {
     const accountData = await getAccountTransactions(params.id);
-    //await updateDefaultAccount(params.id);
+    await updateDefaultAccount(params.id);
 
     
     if (!accountData) {
