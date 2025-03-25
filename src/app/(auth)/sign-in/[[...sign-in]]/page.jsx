@@ -1,16 +1,11 @@
 "use client";
 
 import React from "react";
-import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { Brain } from "lucide-react";
 
-// Clerk SignUp Component (Fixes SSR issue)
-//const SignIn = dynamic(() => import("@clerk/nextjs").then(mod => mod.SignIn), { ssr: false });
-
-// Floating Element Component
 const FloatingElement = ({ className }) => (
   <motion.div
     className={`absolute rounded-full mix-blend-multiply filter blur-2xl ${className}`}

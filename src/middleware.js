@@ -3,6 +3,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/accounts(.*)','/transactions(.*)'])
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 //protecting our website..from BOts,and server attacks
 const aj=arcjet({
   key:process.env.ARCJET_KEY,
@@ -24,7 +25,7 @@ const clerk= clerkMiddleware(async (auth, request) => {
   if (!userId && isProtectedRoute(request)) {
     // const {redirectToSignIn}=await auth();
     // return redirectToSignIn();
-    return NextResponse.redirect('http://localhost:3000/sign-in');//do to /sign-in page
+    return NextResponse.redirect(`${baseUrl}/sign-in`);
 
   }
 })
