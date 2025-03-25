@@ -5,6 +5,9 @@ import Transactiontable from '@/app/(main)/account/transactionsTable/transaction
 import { BarLoader } from 'react-spinners';
 import AccountChart from '../accountchart/accountchart';
 
+
+// 🚀 Force dynamic rendering (prevents build-time errors)
+export const dynamic = "force-dynamic";
 // Fetch data in a separate function
 async function fetchAccountData(id) {
     try {
