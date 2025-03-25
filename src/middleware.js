@@ -3,7 +3,8 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/accounts(.*)','/transactions(.*)'])
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+//console.log("--->",baseUrl)
 //protecting our website..from BOts,and server attacks
 const aj=arcjet({
   key:process.env.ARCJET_KEY,
