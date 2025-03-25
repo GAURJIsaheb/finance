@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';  // Ensures dynamic rendering for this API route
+export const revalidate = 0;
 import { currentUser } from "@clerk/nextjs/server";
 import { db_Var } from "@/lib/prisma";
 import { NextResponse } from "next/server";
