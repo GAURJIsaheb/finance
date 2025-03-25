@@ -1,22 +1,31 @@
-import { getAccountTransactions, updateDefaultAccount } from '@/Serveractions/accountsAction'
+import { getAccountTransactions, updateDefaultAccount } from '@/Serveractions/accountsAction';
 import { notFound } from 'next/navigation';
-import React, { Suspense } from 'react'
-import Transactiontable from '@/app/(main)/account/transactionsTable/transactiontable'
+import React, { Suspense } from 'react';
+import Transactiontable from '@/app/(main)/account/transactionsTable/transactiontable';
 import { BarLoader } from 'react-spinners';
 import AccountChart from '../accountchart/accountchart';
 
-export default async function Account({params}) {
+// Fetch data in a separate function
+async function fetchAccountData(id) {
     try {
-    const accountData = await getAccountTransactions(params.id);
-    await updateDefaultAccount(params.id);
+        const accountData = await getAccountTransactions(id);
+        await updateDefaultAccount(id);
 
-    
-    if (!accountData) {
-        notFound();
+        if (!accountData) notFound(); // Trigger 404 if no data
+
+        return accountData;
+    } catch (error) {
+        console.error("Error loading account data:", error);
+        notFound();  // Trigger 404 page on error
     }
-    
+}
+
+export default async function Account({ params }) {
+    const accountData = await fetchAccountData(params.id);
+    if (!accountData) return null; // Prevents further execution if no data
+
     const { transactions, ...account } = accountData;
-    
+
     return (
         <div className="flex-col">
             <div className=" space-y-8 px-5 py-24">
@@ -24,7 +33,7 @@ export default async function Account({params}) {
                 <div className="flex gap-4 items-end justify-between">
                     <div>
                         <h1 className="text-5xl sm:text-6xl font-bold capitalize bg-gradient-to-r from-yellow-600 via-green-500 to-indigo-400 bg-clip-text text-transparent">
-                          {account.name}
+                        {account.name}
                         </h1>
                         <p className="text-muted-foreground">{account.type.charAt(0) + account.type.slice(1).toLowerCase()} Account</p>
                     </div>
@@ -36,20 +45,17 @@ export default async function Account({params}) {
                         </div>
                     </div>
                 </div>
-                {/*Chart Section */}
+
+                {/* Chart Section */}
                 <Suspense fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea"/>}>
-                    <AccountChart transactions={transactions}/>
+                    <AccountChart transactions={transactions} />
                 </Suspense>
+
                 {/* Transaction Table Below */}
                 <Suspense fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea"/>}>
-                    <Transactiontable transactions={transactions} account={account}/>
+                    <Transactiontable transactions={transactions} account={account} />
                 </Suspense>
             </div>
         </div>
-    )
-} catch (error) {
-    console.error("Error loading account data:", error);
-    notFound();  // Trigger 404 if there's an error
-}
-
+    );
 }
