@@ -26,12 +26,22 @@ const clerk= clerkMiddleware(async (auth, request) => {
   if (!userId && isProtectedRoute(request)) {
     // const {redirectToSignIn}=await auth();
     // return redirectToSignIn();
-    return NextResponse.redirect(`${baseUrl}/sign-in`);
+    return NextResponse.redirect(new URL("/sign-in", baseUrl));
 
   }
-  const response = NextResponse.next();
+  // Handle CORS Preflight Requests
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    });
+  }
 
-  // Add CORS headers
+  const response = NextResponse.next();
   response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
