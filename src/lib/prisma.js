@@ -1,10 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 
 //prisma ka "client" bnega is File se,,Database ko call krega jo
-export const db_Var=globalThis.prisma || new PrismaClient();
-if(process.env.NODE_ENV !=="production"){
-    globalThis.prisma=db_Var;
-}
+
+
+
+
+const globalForPrisma = globalThis;
+
+export const db_Var = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db_Var;
+
+// export const db_Var=globalThis.prisma || new PrismaClient();
+// if(process.env.NODE_ENV !=="production"){
+//     globalThis.prisma=db_Var;
+// }
 
 //---> we use : globalThis,,bcz:
 
