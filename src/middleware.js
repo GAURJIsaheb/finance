@@ -198,17 +198,8 @@ const aj = arcjet({
   // characteristics: ["userId"], // Track based on Clerk userId
   rules: [
     // Shield protection for content and security
-    shield({
-      mode: "LIVE",
-    }),
-    detectBot({
-      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
-      allow: [
-        "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
-        "GO_HTTP", // For Inngest
-        // See the full list at https://arcjet.com/bot-list
-      ],
-    }),
+    shield({ mode: "DRY_RUN" }),
+    detectBot({ mode: "DRY_RUN", allow: ["CATEGORY:SEARCH_ENGINE", "GO_HTTP"] }),
   ],
 });
 
