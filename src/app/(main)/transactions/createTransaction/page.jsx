@@ -1,9 +1,9 @@
-
+export const dynamic = "force-dynamic";  
 import AddTransactionForm from '@/components/createTransaction/addtransactionform';
 import { defaultCategories } from '@/data/category';
 import { getTransaction } from '@/Serveractions/createTransaction';
 import { getUserAccount } from '@/Serveractions/dashbaordAction'
- async function Createtransaction({searchParams}) {
+async function Createtransaction({searchParams}) {
 
   const account = await getUserAccount();
   const editId = searchParams?.edit;

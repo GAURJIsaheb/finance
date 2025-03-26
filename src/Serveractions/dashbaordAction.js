@@ -18,6 +18,9 @@ const serializeTransaction=(obj)=>{//Decimal into Number mai convert krega Amoun
     return serialized;
 
 }
+
+
+
 export async function createAccount(data){//data se,,-- accountsTable_Var -- Table ka,,name,type,balance,isDefault,,pass krenge
     try{
         const {userId}=await auth();
@@ -84,41 +87,33 @@ export async function createAccount(data){//data se,,-- accountsTable_Var -- Tab
 
 
 //2nd server action to render the details of Account
-export async function getUserAccount(){
+export async function getUserAccount() {
     try {
-        const {userId}=await auth();
-        if(!userId){
-            throw new Error("No User_Id found in dashboardAction.js File");
-        }
-        const user=await db_Var.usersTable_Var.findUnique({
-            where:{clerkUserId:userId},//clerkUserId-->aaya hai--->usersTable_Var se-->prisma.schema se
-        });
-        if(!user){
-            throw new Error("User not found in accountsTable ");//Sirf Database likh dena baad mai
-        }
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorized: No User ID found");
 
-        //login kiye gye user ki id mil gye to accountsTable_Var se account table mai dhundho usae
-        const account = await db_Var.accountsTable_Var.findMany({
+        const user = await db_Var.usersTable_Var.findUnique({
+            where: { clerkUserId: userId },
+        });
+        if (!user) throw new Error("User not found in the database");
+
+        // Fetch accounts
+        const accounts = await db_Var.accountsTable_Var.findMany({
             where: { userId: user.id },
             orderBy: { createdAt: "desc" },
             include: {
-                _count: {
-                    select: {
-                        transactions: true,
-                    },
-                },
+                _count: { select: { transactions: true } },
             },
         }) || [];
-        
-        // **Fix: Map over accounts and serialize each one**
-        const serializedAccounts = account.map(serializeTransaction);
-        return serializedAccounts;
-        
+
+        return accounts.map(serializeTransaction);
+
     } catch (error) {
-        console.error("Error in getUserAccount:", error);
-        throw new Error("Error in Last Catch message in dashboardAction.js file 2nd Function"+error.message);
+        console.error("Error in getUserAccount:", error.message);
+        throw new Error("Error fetching user accounts");
     }
 }
+
 
 
 
