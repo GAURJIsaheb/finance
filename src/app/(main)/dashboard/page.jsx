@@ -23,7 +23,7 @@ async function Dashboardpage() {
   const transactions = await getDashboardData();
 ;
   return (
-    <div className="px-5">
+    <div className="px-5 pb-4">
             <h1 className="text-6xl font-bold text-purple-700 mb-8 ">Dashboard</h1>
             {defaultAccount && 
             <BudgetComponent

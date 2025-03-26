@@ -1,33 +1,19 @@
-"use client"
+
 import AddTransactionForm from '@/components/createTransaction/addtransactionform';
 import { defaultCategories } from '@/data/category';
 import { getTransaction } from '@/Serveractions/createTransaction';
 import { getUserAccount } from '@/Serveractions/dashbaordAction'
-import React, { useEffect, useState } from 'react'
+ async function Createtransaction({searchParams}) {
 
-async function Createtransaction({searchParams}) {
-  const [account, setAccount] = useState(null);
-  const [initialData, setInitialData] = useState(null);
-  const [editId, setEditId] = useState(null);
+  const account = await getUserAccount();
+  const editId = searchParams?.edit;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const userAccount = await getUserAccount();
-      setAccount(userAccount);
-      
-      const editIdParam = searchParams?.edit;
-      setEditId(editIdParam);
-      
-      if (editIdParam) {
-        const transaction = await getTransaction(editIdParam);
-        setInitialData(transaction);
-      }
-    };
-    
-    fetchData();
-  }, [searchParams]);
+  let initialData = null;
+  if (editId) {
+    const transaction = await getTransaction(editId);
+    initialData = transaction;
+  }
 
-  if (!account) return <div>Loading...</div>;
 
   return (
     <div className="max-w-3xl mx-auto px-5 pb-8 pt-5">
