@@ -4,8 +4,17 @@ import React, { useEffect, useRef } from 'react'
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import image1 from '../../../public/ai.jpeg'
+import { useRouter } from 'next/navigation';
 
 function Herosection() {
+
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push("/sign-in?redirect_url=/dashboard");
+  };
+
+
 
   //image ka Til vaala Transition aa rha hai is se scroll hote hue
   const imageRef=useRef();
@@ -37,9 +46,9 @@ function Herosection() {
           An Ai-powered financial management platform that helps you to track,analyse,and optimize your spendings with real-time insights.
         </p>
         <div>
-          <Link href="/dashboard">
-            <Button size="lg" className="px-8 mt-[2vh]">Get Started</Button>
-          </Link>
+
+            <Button size="lg" className="px-8 mt-[2vh]"onClick={handleClick}>Get Started</Button>
+
         </div>
         <div className="hero-image-wrapper">
           <div ref={imageRef} className="hero-image">
