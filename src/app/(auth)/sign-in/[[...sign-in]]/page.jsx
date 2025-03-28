@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { SignIn, useSignIn } from "@clerk/nextjs";
+import { SignIn, useAuth, useSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { Brain } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,12 +24,12 @@ const FloatingElement = ({ className }) => (
 );
 
 export default function Page() {
-  const { isSignedIn } = useSignIn();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isSignedIn) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
   }, [isSignedIn, router]);
   return (
@@ -76,7 +76,7 @@ export default function Page() {
         animate={{ scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <SignIn routing="path" signUpUrl="/sign-up" forceRedirectUrl="/dashboard"/>
+    <SignIn routing="path" signUpUrl="/sign-up" signInFallbackRedirectUrl="/dashboard"/>
       </motion.div>
     </motion.div>
   );

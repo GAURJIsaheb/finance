@@ -4,15 +4,7 @@ import React, { useEffect, useRef } from 'react'
 import { Button } from '../ui/button';
 import Image from 'next/image';
 import image1 from '../../../public/ai.jpeg'
-import { useRouter } from 'next/navigation';
-
 function Herosection() {
-
- 
-
-
-
-
 
   //image ka Til vaala Transition aa rha hai is se scroll hote hue
   const imageRef=useRef();
