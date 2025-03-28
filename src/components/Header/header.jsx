@@ -4,12 +4,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Brain, LayoutDashboard, PenBox } from "lucide-react";
-import { SignedOut, SignedIn, SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { SignedOut, SignedIn, SignInButton, UserButton, useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser(); // Clerk's built-in authentication check
+  // const { frontendApi } = useClerk();
+  // console.log("Clerk Frontend API:", frontendApi);
 
   return (
     <header className="fixed w-full bg-gradient-to-r from-blue-700 to-black backdrop-blur-md z-50 border-b border-gray-100">

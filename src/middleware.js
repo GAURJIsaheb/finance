@@ -36,8 +36,9 @@ const clerk = clerkMiddleware(async (auth, req) => {
 
   // Skip protection for /sign-in
   if (pathname.startsWith("/sign-in")) {
-    return NextResponse.next();
+    return NextResponse.rewrite(new URL(req.nextUrl, req.url));
   }
+  
   if (!userId && isProtectedRoute(req)) {
     const { redirectToSignIn } = await auth();
     return redirectToSignIn();

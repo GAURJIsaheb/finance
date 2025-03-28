@@ -11,7 +11,8 @@ function Herosection() {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push("/sign-in?redirect_url=/dashboard");
+    router.push(`${window.location.origin}/sign-in?redirect_url=/dashboard`);
+
   };
 
 
