@@ -1,9 +1,10 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
-import { SignIn } from "@clerk/nextjs";
+import { SignIn, useSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { Brain } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const FloatingElement = ({ className }) => (
   <motion.div
@@ -23,7 +24,16 @@ const FloatingElement = ({ className }) => (
 );
 
 export default function Page() {
+  const { isSignedIn } = useSignIn();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isSignedIn, router]);
   return (
+
     <motion.div
       
       className="relative min-h-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#1E3A8A] via-[#1b0d30] to-[#3dd928]"

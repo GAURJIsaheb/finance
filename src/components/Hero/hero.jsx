@@ -8,12 +8,9 @@ import { useRouter } from 'next/navigation';
 
 function Herosection() {
 
-  const router = useRouter();
+ 
 
-  const handleClick = () => {
-    router.push(`${window.location.origin}/sign-in?redirect_url=/dashboard`);
 
-  };
 
 
 
@@ -47,8 +44,9 @@ function Herosection() {
           An Ai-powered financial management platform that helps you to track,analyse,and optimize your spendings with real-time insights.
         </p>
         <div>
-
-            <Button size="lg" className="px-8 mt-[2vh]"onClick={handleClick}>Get Started</Button>
+          <Link href="/sign-in">
+          <Button size="lg" className="px-8 mt-[2vh]">Get Started</Button></Link>
+            
 
         </div>
         <div className="hero-image-wrapper">
