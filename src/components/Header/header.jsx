@@ -1,17 +1,31 @@
-
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Brain, LayoutDashboard, PenBox } from "lucide-react";
-import { SignedOut, SignedIn, SignInButton, UserButton, useUser, useClerk } from "@clerk/nextjs";
+import { SignedOut, SignedIn, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const { isSignedIn } = useUser(); // Clerk's built-in authentication check
-  // const { frontendApi } = useClerk();
-  // console.log("Clerk Frontend API:", frontendApi);
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch("/api/checkuser"); // Your API route
+        const data = await res.json();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    }
+
+    if (isSignedIn) {
+      fetchUser();
+    }
+  }, [isSignedIn]); // Re-run when sign-in state changes
 
   return (
     <header className="fixed w-full bg-gradient-to-r from-blue-700 to-black backdrop-blur-md z-50 border-b border-gray-100">
@@ -41,6 +55,13 @@ const Header = () => {
                   <span className="mr-2">Dashboard</span>
                 </Button>
               </Link>
+
+              {/* Display fetched user data */}
+              {user && (
+                <div className="text-white font-medium">
+                  Welcome, {user.name || "User"}
+                </div>
+              )}
 
               {/* User Profile */}
               <UserButton fallbackRedirectUrl="/" />
@@ -77,6 +98,13 @@ const Header = () => {
                     <span>Dashboard</span>
                   </Button>
                 </Link>
+
+                {/* Display fetched user data */}
+                {user && (
+                  <div className="text-white font-medium mt-2">
+                    Welcome, {user.name || "User"}
+                  </div>
+                )}
 
                 {/* User Profile */}
                 <div className="mt-2">

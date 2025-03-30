@@ -41,9 +41,12 @@ function AccountCard({ account }) {
 
   // Handle navigation loading
   const handleNavigation = (e) => {
-    setIsNavigating(true); // Show loading state
-    // Simulate navigation delay (remove setTimeout in production if not needed)
-    setTimeout(() => setIsNavigating(false), 15000); // Reset after 15s (adjust as needed),,krna nhi aa rha ,,,meko ki page change hoye,,tbh tk Lading ghoye
+    if (isNavigating) {
+      e.preventDefault(); // Prevent additional clicks on this card while navigating
+      return;
+    }
+    setIsNavigating(true); // Show loading state for this card
+    setTimeout(() => setIsNavigating(false), 15000); // Reset after 15 seconds
   };
 
   // Handle success
@@ -62,7 +65,11 @@ function AccountCard({ account }) {
 
   return (
     <div className="relative">
-      <Card className="hover:shadow-lg transition-shadow group bg-gradient-to-br from-yellow-400 to-white">
+      <Card
+        className={`hover:shadow-lg transition-shadow group bg-gradient-to-br from-yellow-400 to-white ${
+          isNavigating ? "pointer-events-none" : ""
+        }`}
+      >
         <Link href={`/account/${id}`} onClick={handleNavigation}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium capitalize">{name}</CardTitle>
@@ -70,7 +77,7 @@ function AccountCard({ account }) {
               <Switch
                 checked={isDefault}
                 onClick={handleDefaultChange}
-                disabled={updateDefaultLoading}
+                disabled={updateDefaultLoading || isNavigating} // Disable switch during navigation
                 className={updateDefaultLoading ? "opacity-50 cursor-not-allowed" : ""}
               />
               {updateDefaultLoading && (
