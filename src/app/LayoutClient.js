@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Header from "@/components/Header/header";
-import Footer from "@/components/footer/footer";
+import Header from "../components/Header/header";
+import Footer from "../components/footer/footer";
 import { Toaster } from "sonner";
 
 export default function LayoutClient({ children }) {

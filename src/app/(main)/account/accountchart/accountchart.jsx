@@ -5,14 +5,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "../../../../components/ui/card"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "../../../../components/ui/select"
 
 
 import React,{ PureComponent, useMemo, useState }  from 'react'
