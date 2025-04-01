@@ -51,7 +51,7 @@ export default function Dashboardpage() {
   }
 
   return (
-    <div className="px-5 pb-4">
+    <div className="pt-20 pb-4">
       <h1 className="text-6xl font-bold text-purple-700 mb-8">Dashboard</h1>
       {accounts?.find((account) => account.isDefault) && (
         <BudgetComponent
